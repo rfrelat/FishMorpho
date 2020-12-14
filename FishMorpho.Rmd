@@ -15,12 +15,13 @@ This document aims to provide a quick introduction to morphometric analyses on f
 
 It is the companion tutorial for the article: Caillon F., Bonhomme V., Möllmann C., Frelat R. (2018). **A morphometrics dive into fish morphology**, *Ecosphere* 9(5): e02220 [DOI: 10.1002/ecs2.2220](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecs2.2220). See the "Material and Methods" section of the paper and the "Electronic supplementary materials" for more details about the method.
 
-Please visit [Momocs speed dating](https://cran.r-project.org/web/packages/Momocs/vignettes/Momocs_speed_dating.html) for a detailed introduction to modern morphometrics with the R package Momocs.   
+Please visit [Momocs speed dating](https://mran.microsoft.com/snapshot/2017-02-27/web/packages/Momocs/vignettes/Momocs_speed_dating.html) for a detailed introduction to modern morphometrics with the R package Momocs.   
 
 **The tutorial has been updated on 14th December 2020 with R 4.0.2 and Momocs v1.3.2.**
 
 # Preliminaries
-The simplified version of the dataset of fish outlines is included in the package [Momocs (v > 1.2.2)](http://github.com/vbonhomme/Momocs). The complete dataset can be downloaded [here](https://github.com/rfrelat/FishMorpho/raw/master/nsfishes.Rdata). Make sure the file `CoralFishes.Rdata` is in your working directory, then load it in R.
+
+A simplified version of the dataset of fish outlines is included in the package [Momocs (v > 1.2.2)](http://github.com/vbonhomme/Momocs). The complete dataset can be downloaded [here](https://github.com/rfrelat/FishMorpho/raw/master/nsfishes.Rdata). Make sure the file `CoralFishes.Rdata` is in your working directory, then load it in R.
 
 ```{r, message=FALSE}
 library(Momocs)
