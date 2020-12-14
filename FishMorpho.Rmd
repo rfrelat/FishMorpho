@@ -13,15 +13,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 This document aims to provide a quick introduction to morphometric analyses on fish outlines. The tutorial targets students and scientists in marine biology or ecology that have previous knowledge of the [R software](https://cran.r-project.org/). 
 
-It is the companion tutorial for the submitted paper: `Caillon F., Bonhomme V., Möllmann C., Frelat R. A morphometrics dive into fish morphology`. See the "Material and Methods" section of the paper and the "Electronic supplementary materials" for more details about the method.
+It is the companion tutorial for the article: Caillon F., Bonhomme V., Möllmann C., Frelat R. (2018). **A morphometrics dive into fish morphology**, *Ecosphere* 9(5): e02220 [DOI: 10.1002/ecs2.2220](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecs2.2220). See the "Material and Methods" section of the paper and the "Electronic supplementary materials" for more details about the method.
 
-Please visit [Momocs speed dating](https://cran.r-project.org/web/packages/Momocs/vignettes/Momocs_speed_dating.html) for a detailed introduction to modern morphometrics with the R package Momocs. 
+Please visit [Momocs speed dating](https://cran.r-project.org/web/packages/Momocs/vignettes/Momocs_speed_dating.html) for a detailed introduction to modern morphometrics with the R package Momocs.   
+
+**The tutorial has been updated on 14th December 2020 with R 4.0.2 and Momocs v1.3.2.**
 
 # Preliminaries
-The dataset of fish outlines is included in the package [Momocs (v > 1.2.2)](http://github.com/vbonhomme/Momocs).
+The simplified version of the dataset of fish outlines is included in the package [Momocs (v > 1.2.2)](http://github.com/vbonhomme/Momocs). The complete dataset can be downloaded [here](https://github.com/rfrelat/FishMorpho/raw/master/nsfishes.Rdata). Make sure the file `CoralFishes.Rdata` is in your working directory, then load it in R.
 
 ```{r, message=FALSE}
 library(Momocs)
+load("nsfishes.Rdata")
 nsfishes
 ```
 
@@ -48,33 +51,35 @@ text(nsfishes[17][nsfishes$ldk[[17]],], labels = 1:5, col="red", pos=c(1,1,2,3,3
 
 The alignment is made by, first, selecting the snout tip as starting point of the outlines (with `coo_slide()`) and, second, calculate the full Procrustes superimposition with the 5 landmarks (with `fgProcrustes()`).
 
-```{r}
+```{r, results=FALSE}
 fish_out <- nsfishes %>% coo_slide(ldk = 3) %>% fgProcrustes()
 ```
 
 We now have aligned outlines stored in the object `fish_out`, and can visualize them with:
-```{r}
-stack(fish_out)
+```{r, message=FALSE}
+stack(fish_out) # or pile(fish_out, trans=0.9) %>% draw_centroid
 ```
 
 # Elliptical Fourier transforms
-The mathematics behind elliptical Fourier transforms (EFT) are detailed in [Bonhomme et al. 2014 _Journal of Statistical Software_](https://www.jstatsoft.org/article/view/v056i13). The main idea of EFT is to consider the outline as two periodic functions in x and y, that can be decomposed by Fourier transforms, as illustrated in the figure below.  
+The mathematics behind elliptical Fourier transforms (EFT) are detailed in [Bonhomme et al. 2014, Journal of Statistical Software](https://www.jstatsoft.org/article/view/v056i13). The main idea of EFT is to consider the outline as two periodic functions in x and y, that can be decomposed by Fourier transforms, as illustrated in the figure below.  
 
-```{r, fig.asp=0.5}
-coo_oscillo(fish_out[17], "efourier")
+```{r, message=FALSE, warnings=FALSE, fig.asp=0.5}
+osc <- coo_oscillo(fish_out[17], "efourier")
 ```
 
 
 The progressive capture of shape geometry along the number of harmonics can be visualized with:
 ```{r, fig.asp=0.5}
-calibrate_reconstructions(fish_out, method ="efourier", id = 17, 
+calibrate_reconstructions_efourier(fish_out, id = 17, 
                           range = c(1, 2, 4, 8, 14, 20))
 ```
 
 The number of harmonics to be kept for further analysis can be estimated with the cumulated harmonic power. Here, 14 harmonics were enough to gather 99% of the cumulated harmonic power along the dataset.
 
-```{r}
-calibrate_harmonicpower(fish_out, method ="efourier", nb.h=100)
+```{r, message=FALSE}
+hpow <- calibrate_harmonicpower_efourier(fish_out, nb.h=30)
+boxplot(hpow$q)
+print(hpow$minh)
 ```
 
 Finally, we perform the EFT with `efourier`, keeping only 14 harmonics (`nb.h = 14`) and without normalization (`norm = FALSE`) because the outlines were aligned with Procrustes superimposition in the previous step:
@@ -83,16 +88,17 @@ Finally, we perform the EFT with `efourier`, keeping only 14 harmonics (`nb.h = 
 fish_efa <- efourier(fish_out, norm = FALSE, nb.h = 14)
 ```
 
+
 # Multivariate analyses
 
 From the harmonic coefficient on the 14 harmonics, we can calculate a principal component analysis (PCA) and visualize it with:
-```{r}
+```{r, message=FALSE}
 fish_pca <- PCA(fish_efa)
 plot(fish_pca)
 ```
 
 The grey shapes are theoretical shapes regularly drawn on the factorial plane. Looking at the variation of shapes along the principal components can help their interpretation. We can visualize the contribution of the three first Principal Components:
-```{r, fig.asp=0.4}
+```{r, message=FALSE, warning=FALSE, fig.asp=0.4}
 PCcontrib(fish_pca,nax = 1:3)
 ```
 
